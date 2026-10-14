@@ -1,0 +1,15 @@
+# Archivos del sistema y editor
+.DS_Store
+Thumbs.db
+*.log
+
+# Carpetas de agentes y configuración local
+.agents/
+.agent/
+_agents/
+_agent/
+.system_generated/
+*.ps1
+
+# Dependencias si las hubiera
+node_modules/
