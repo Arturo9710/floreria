@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aurelia Botánica | Experiencia Dinámica de Selección</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-current: #F7EBE8; /* Cambia dinámicamente con JS */
+      --text-current: #2B1810;
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-smooth: cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-current);
+      color: var(--text-current);
+      min-height: 100vh;
+      /* Transición suave del fondo (600ms sin corte abrupto) */
+      transition: background-color 700ms var(--ease-smooth), color 700ms var(--ease-smooth);
+      overflow-x: hidden;
+    }
+
+    /* BARRA SUPERIOR ELEGANTE */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 24px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      mix-blend-mode: multiply;
+    }
+
+    .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-indicator {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+
+    /* CONTENEDOR HERO CON SCROLL / CAMBIO INTERACTIVO */
+    .showcase-stage {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 30px 60px;
+      overflow: hidden;
+    }
+
+    /* Fondo orgánico de onda líquida suave como el helado del video */
+    .organic-wave-bg {
+      position: absolute;
+      bottom: -10%;
+      left: -10%;
+      right: -10%;
+      height: 55%;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(20px);
+      border-radius: 50% 50% 0 0 / 25% 25% 0 0;
+      z-index: 1;
+      transition: transform 600ms var(--ease-out);
+    }
+
+    .stage-content {
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      align-items: center;
+      gap: 50px;
+    }
+
+    /* Lado izquierdo: Tipografía protagonista con movimiento */
+    .info-column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .botanical-tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 12px;
+      opacity: 0.8;
+      transition: opacity 300ms;
+    }
+
+    .main-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 5.5vw, 5.2rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      font-weight: 600;
+      margin-bottom: 20px;
+      transition: transform 500ms var(--ease-out), opacity 400ms;
+    }
+
+    .main-desc {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      max-width: 460px;
+      margin-bottom: 36px;
+      opacity: 0.85;
+    }
+
+    .cta-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .btn-order-now {
+      background: #111111;
+      color: #FFFFFF;
+      border: none;
+      padding: 16px 36px;
+      border-radius: 9999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      transition: transform 160ms var(--ease-out), background-color 160ms;
+    }
+
+    .btn-order-now:hover {
+      background: #252525;
+      transform: translateY(-2px);
+    }
+
+    .btn-order-now:active {
+      transform: scale(0.96);
+    }
+
+    .price-badge {
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* Lado derecho: El ramo protagonista flotante con interacción */
+    .flower-display-wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .flower-halo {
+      position: absolute;
+      width: 440px;
+      height: 440px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%);
+      filter: blur(10px);
+      z-index: 1;
+      animation: pulseHalo 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulseHalo {
+      0% { transform: scale(0.94); opacity: 0.6; }
+      100% { transform: scale(1.06); opacity: 0.9; }
+    }
+
+    .floating-flower-img {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 460px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 28px 40px rgba(0,0,0,0.18));
+      transition: transform 600ms var(--ease-out), opacity 400ms var(--ease-out);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Animación flotante suave continua */
+    .floating-flower-img.idle-float {
+      animation: gentleFloat 5s ease-in-out infinite;
+    }
+
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-12px) rotate(1.5deg); }
+    }
+
+    /* CONTROLES TIPO SLIDER / SELECTOR FLOTANTE INFERIOR */
+    .flavor-selector {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 8px 14px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+    }
+
+    .flavor-dot-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 9999px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+      cursor: pointer;
+      transition: all 200ms var(--ease-out);
+    }
+
+    .flavor-dot-btn:active {
+      transform: scale(0.95);
+    }
+
+    .flavor-dot-btn.active {
+      background: #FFFFFF;
+      color: #111;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    }
+
+    .flavor-color-preview {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    /* Feedback sutil */
+    .toast-msg {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 200;
+      background: #111;
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 200ms var(--ease-out);
+      pointer-events: none;
+    }
+
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 900px) {
+      .stage-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .info-column {
+        align-items: center;
+      }
+      .main-title {
+        font-size: 2.8rem;
+      }
+      .floating-flower-img {
+        max-width: 320px;
+      }
+      .organic-wave-bg {
+        height: 40%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navegación -->
+  <header class="top-nav">
+    <div class="brand-name">Aurelia Atelier</div>
+    <div class="nav-indicator" id="nav-step">Colección 01 / 03</div>
+  </header>
+
+  <!-- Escenario Hero Interactivo con cambio fluido de fondo -->
+  <main class="showcase-stage" id="stage">
+    <div class="organic-wave-bg"></div>
+
+    <div class="stage-content">
+      <!-- Información del Ramo -->
+      <div class="info-column">
+        <span class="botanical-tag" id="flower-tag">Edición Pasión • Corte Matutino</span>
+        <h1 class="main-title" id="flower-title">Rosas Inglesas & Terciopelo</h1>
+        <p class="main-desc" id="flower-desc">
+          Rosas de jardín seleccionadas en tono carmesí profundo y peonías ruborizadas. Envueltas en listón de seda deshilachado a mano.
+        </p>
+
+        <div class="cta-row">
+          <button class="btn-order-now" id="order-btn" onclick="orderCurrentFlower()">Pedir este Ramo</button>
+          <span class="price-badge" id="flower-price">$1,250 MXN</span>
+        </div>
+      </div>
+
+      <!-- Imagen protagonista flotante -->
+      <div class="flower-display-wrapper">
+        <div class="flower-halo" id="flower-halo"></div>
+        <img 
+          id="flower-img" 
+          class="floating-flower-img idle-float" 
+          src="assets/images/flotante_amor.jpg" 
+          alt="Ramo Protagonista"
+        >
+      </div>
+    </div>
+  </main>
+
+  <!-- Selector Interactivo Flotante (Control de Scroll y Clic) -->
+  <nav class="flavor-selector" aria-label="Cambiar ramo">
+    <button class="flavor-dot-btn active" data-index="0">
+      <span class="flavor-color-preview" style="background: #8C4351;"></span>
+      <span>Amor & Rosas</span>
+    </button>
+    <button class="flavor-dot-btn" data-index="1">
+      <span class="flavor-color-preview" style="background: #E8B44A;"></span>
+      <span>Jardín Primavera</span>
+    </button>
+    <button class="flavor-dot-btn" data-index="2">
+      <span class="flavor-color-preview" style="background: #8C789E;"></span>
+      <span>Peonías & Lavanda</span>
+    </button>
+  </nav>
+
+  <div id="toast" class="toast-msg">Ramo añadido al carrito</div>
+
+  <script>
+    // Datos de los ramos con paletas cromáticas botánicas de alta gama
+    const FLOWER_SECTIONS = [
+      {
+        tag: "Edición Romance • Selección Matutina",
+        title: "Rosas Inglesas & Terciopelo",
+        desc: "Rosas de jardín en carmesí profundo y peonías blush aterciopeladas. La máxima expresión de elegancia y pasión floral.",
+        price: "$1,250 MXN",
+        image: "assets/images/flotante_amor.jpg",
+        bgColor: "#F7EBE8",       // Rosa empolvado / cálido
+        textColor: "#2B1810",
+        haloColor: "rgba(140, 67, 81, 0.25)"
+      },
+      {
+        tag: "Edición Celebración • Luz Natural",
+        title: "Jardín de Ranúnculos & Sol",
+        desc: "Un estallido radiante de ranúnculos amarillos, tulipanes rosados y flores silvestres para llenar de alegría cualquier espacio.",
+        price: "$980 MXN",
+        image: "assets/images/flotante_cumpleanos.jpg",
+        bgColor: "#FAF4E6",       // Mantequilla cálida / sol suave
+        textColor: "#2D2614",
+        haloColor: "rgba(232, 180, 74, 0.25)"
+      },
+      {
+        tag: "Edición Aniversario • Alta Floristería",
+        title: "Peonías Francesas & Lavanda",
+        desc: "Tulipanes franceses en tono lila y peonías pomposas en arreglo de autor. Sofisticación y fragancia dulce inolvidable.",
+        price: "$1,680 MXN",
+        image: "assets/images/flotante_aniversario.jpg",
+        bgColor: "#EFEBF4",       // Lavanda pálido etéreo
+        textColor: "#1F1A26",
+        haloColor: "rgba(140, 120, 158, 0.25)"
+      }
+    ];
+
+    let currentIndex = 0;
+    let isTransitioning = false;
+
+    // Elementos del DOM
+    const tagEl = document.getElementById('flower-tag');
+    const titleEl = document.getElementById('flower-title');
+    const descEl = document.getElementById('flower-desc');
+    const priceEl = document.getElementById('flower-price');
+    const imgEl = document.getElementById('flower-img');
+    const haloEl = document.getElementById('flower-halo');
+    const stepEl = document.getElementById('nav-step');
+    const buttons = document.querySelectorAll('.flavor-dot-btn');
+
+    function switchFlower(index) {
+      if (index === currentIndex || isTransitioning) return;
+      isTransitioning = true;
+
+      const data = FLOWER_SECTIONS[index];
+      currentIndex = index;
+
+      // 1. Transición de salida de la imagen y texto
+      imgEl.classList.remove('idle-float');
+      imgEl.style.transform = "scale(0.88) translateY(20px)";
+      imgEl.style.opacity = "0";
+      titleEl.style.opacity = "0";
+      titleEl.style.transform = "translateY(10px)";
+
+      // 2. Transición del fondo (Atmósfera cromática de la flor)
+      document.documentElement.style.setProperty('--bg-current', data.bgColor);
+      document.documentElement.style.setProperty('--text-current', data.textColor);
+      haloEl.style.background = `radial-gradient(circle, ${data.haloColor} 0%, rgba(255,255,255,0) 70%)`;
+
+      // 3. Actualizar textos y fuente de imagen
+      setTimeout(() => {
+        tagEl.textContent = data.tag;
+        titleEl.textContent = data.title;
+        descEl.textContent = data.desc;
+        priceEl.textContent = data.price;
+        imgEl.src = data.image;
+        stepEl.textContent = `Colección 0${index + 1} / 03`;
+
+        // 4. Transición de entrada suave
+        imgEl.style.transform = "scale(1) translateY(0)";
+        imgEl.style.opacity = "1";
+        titleEl.style.opacity = "1";
+        titleEl.style.transform = "translateY(0)";
+
+        setTimeout(() => {
+          imgEl.classList.add('idle-float');
+          isTransitioning = false;
+        }, 600);
+      }, 350);
+
+      // Actualizar botón activo
+      buttons.forEach((btn, i) => {
+        btn.classList.toggle('active', i === index);
+      });
+    }
+
+    // Botones inferiores
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index, 10);
+        switchFlower(idx);
+      });
+    });
+
+    // Soporte para cambiar con la rueda del ratón (Scroll)
+    let lastScrollTime = 0;
+    window.addEventListener('wheel', (e) => {
+      const now = Date.now();
+      if (now - lastScrollTime < 700) return; // Debounce suave para no saltar de golpe
+      lastScrollTime = now;
+
+      if (e.deltaY > 20) {
+        // Scroll hacia abajo -> Siguiente flor
+        const next = (currentIndex + 1) % FLOWER_SECTIONS.length;
+        switchFlower(next);
+      } else if (e.deltaY < -20) {
+        // Scroll hacia arriba -> Flor previa
+        const prev = (currentIndex - 1 + FLOWER_SECTIONS.length) % FLOWER_SECTIONS.length;
+        switchFlower(prev);
+      }
+    });
+
+    // Soporte para teclas de flechas (Izquierda / Derecha)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        const next = (currentIndex + 1) % FLOWER_SECTIONS.length;
+        switchFlower(next);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        const prev = (currentIndex - 1 + FLOWER_SECTIONS.length) % FLOWER_SECTIONS.length;
+        switchFlower(prev);
+      }
+    });
+
+    // Parallax leve al mover el ratón sobre la flor
+    imgEl.addEventListener('mousemove', (e) => {
+      const rect = imgEl.getBoundingClientRect();
+      const x = (e.clientX - (rect.left + rect.width / 2)) * 0.05;
+      const y = (e.clientY - (rect.top + rect.height / 2)) * 0.05;
+      imgEl.style.transform = `translate(${x}px, ${y}px) scale(1.02)`;
+    });
+
+    imgEl.addEventListener('mouseleave', () => {
+      imgEl.style.transform = "";
+    });
+
+    function orderCurrentFlower() {
+      const cur = FLOWER_SECTIONS[currentIndex];
+      const toast = document.getElementById('toast');
+      toast.textContent = `Añadido: ${cur.title}`;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+  </script>
+</body>
+</html>
